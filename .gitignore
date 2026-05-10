@@ -1,0 +1,15 @@
+# SonarQube
+.sonar/
+.scannerwork/
+
+# Java / Maven
+**/target/
+**/*.class
+
+# Sistema (Mac)
+.DS_Store
+
+# Docker
+sonarqube_data/
+sonarqube_extensions/
+sonarqube_logs/

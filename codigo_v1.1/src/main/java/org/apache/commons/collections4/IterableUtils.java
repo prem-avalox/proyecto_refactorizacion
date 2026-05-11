@@ -27,10 +27,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.xml.transform.Transformer;
+
 import org.apache.commons.collections4.functors.EqualPredicate;
 import org.apache.commons.collections4.iterators.LazyIteratorChain;
 import org.apache.commons.collections4.iterators.ReverseListIterator;
 import org.apache.commons.collections4.iterators.UniqueFilterIterator;
+
+import main.java.org.apache.commons.collections4.IterableConstants;
 
 /**
  * Provides utility methods and decorators for {@link Iterable} instances.
@@ -91,19 +95,20 @@ public class IterableUtils {
      * @throws IllegalArgumentException if maxSize is negative
      * @throws NullPointerException if iterable is null
      */
-    public static <E> Iterable<E> boundedIterable(final Iterable<E> iterable, final long maxSize) {
-        Objects.requireNonNull(iterable, "iterable");
-        if (maxSize < 0) {
-            throw new IllegalArgumentException("MaxSize parameter must not be negative.");
-        }
+    public static <E> Iterable<E> boundedIterable(final Iterable<E> iterable, final long limit) {
+    // Refactorización: Nombres significativos 
+    Objects.requireNonNull(iterable, IterableConstants.ITERABLE_NAME);
+    
+    // Refactorización: Introduce Assertion
+    assert(limit >= 0) : IterableConstants.MSG_MAX_SIZE_NEGATIVE;
 
-        return new FluentIterable<E>() {
-            @Override
-            public Iterator<E> iterator() {
-                return IteratorUtils.boundedIterator(iterable.iterator(), maxSize);
-            }
-        };
-    }
+    return new FluentIterable<E>() {
+        @Override
+        public Iterator<E> iterator() {
+            return IteratorUtils.boundedIterator(iterable.iterator(), limit);
+        }
+    };
+}
 
     /**
      * Combines the provided iterables into a single iterable.
@@ -227,7 +232,7 @@ public class IterableUtils {
     static void checkNotNull(final Iterable<?>... iterables) {
         Objects.requireNonNull(iterables, "iterables");
         for (final Iterable<?> iterable : iterables) {
-            Objects.requireNonNull(iterable, "iterable");
+            Objects.requireNonNull(iterable, IterableConstants.ITERABLE_NAME);
         }
     }
 
@@ -454,7 +459,7 @@ public class IterableUtils {
      */
     public static <E> Iterable<E> filteredIterable(final Iterable<E> iterable,
                                                    final Predicate<? super E> predicate) {
-        Objects.requireNonNull(iterable, "iterable");
+        Objects.requireNonNull(iterable, IterableConstants.ITERABLE_NAME);
         Objects.requireNonNull(predicate, "predicate");
         return new FluentIterable<E>() {
             @Override
@@ -617,7 +622,7 @@ public class IterableUtils {
      * @throws NullPointerException if iterable is null
      */
     public static <E> Iterable<E> loopingIterable(final Iterable<E> iterable) {
-        Objects.requireNonNull(iterable, "iterable");
+        Objects.requireNonNull(iterable, IterableConstants.ITERABLE_NAME);
         return new FluentIterable<E>() {
             @Override
             public Iterator<E> iterator() {
@@ -863,7 +868,7 @@ public class IterableUtils {
      * @see ReverseListIterator
      */
     public static <E> Iterable<E> reversedIterable(final Iterable<E> iterable) {
-        Objects.requireNonNull(iterable, "iterable");
+        Objects.requireNonNull(iterable, IterableConstants.ITERABLE_NAME);
         return new FluentIterable<E>() {
             @Override
             public Iterator<E> iterator() {
@@ -909,7 +914,7 @@ public class IterableUtils {
      * @throws NullPointerException if iterable is null
      */
     public static <E> Iterable<E> skippingIterable(final Iterable<E> iterable, final long elementsToSkip) {
-        Objects.requireNonNull(iterable, "iterable");
+        Objects.requireNonNull(iterable, IterableConstants.ITERABLE_NAME);
         if (elementsToSkip < 0) {
             throw new IllegalArgumentException("ElementsToSkip parameter must not be negative.");
         }
@@ -1015,7 +1020,7 @@ public class IterableUtils {
      */
     public static <I, O> Iterable<O> transformedIterable(final Iterable<I> iterable,
                                                          final Transformer<? super I, ? extends O> transformer) {
-        Objects.requireNonNull(iterable, "iterable");
+        Objects.requireNonNull(iterable, IterableConstants.ITERABLE_NAME);
         Objects.requireNonNull(transformer, "transformer");
         return new FluentIterable<O>() {
             @Override
@@ -1039,7 +1044,7 @@ public class IterableUtils {
      * @throws NullPointerException if iterable is null
      */
     public static <E> Iterable<E> uniqueIterable(final Iterable<E> iterable) {
-        Objects.requireNonNull(iterable, "iterable");
+        Objects.requireNonNull(iterable, IterableConstants.ITERABLE_NAME);
         return new FluentIterable<E>() {
             @Override
             public Iterator<E> iterator() {
@@ -1060,7 +1065,7 @@ public class IterableUtils {
      * @throws NullPointerException if iterable is null
      */
     public static <E> Iterable<E> unmodifiableIterable(final Iterable<E> iterable) {
-        Objects.requireNonNull(iterable, "iterable");
+        Objects.requireNonNull(iterable, IterableConstants.ITERABLE_NAME);
         if (iterable instanceof UnmodifiableIterable<?>) {
             return iterable;
         }
@@ -1087,8 +1092,8 @@ public class IterableUtils {
      */
     public static <E> Iterable<E> zippingIterable(final Iterable<? extends E> a,
                                                   final Iterable<? extends E> b) {
-        Objects.requireNonNull(a, "iterable");
-        Objects.requireNonNull(b, "iterable");
+        Objects.requireNonNull(a, IterableConstants.ITERABLE_NAME);
+        Objects.requireNonNull(b, IterableConstants.ITERABLE_NAME);
         return new FluentIterable<E>() {
             @Override
             public Iterator<E> iterator() {
@@ -1114,7 +1119,7 @@ public class IterableUtils {
      * @throws NullPointerException if either of the provided iterables is null
      */
     public static <E> Iterable<E> zippingIterable(final Iterable<? extends E> first, final Iterable<? extends E>... others) {
-        Objects.requireNonNull(first, "iterable");
+        Objects.requireNonNull(first, IterableConstants.ITERABLE_NAME);
         checkNotNull(others);
         return new FluentIterable<E>() {
             @Override

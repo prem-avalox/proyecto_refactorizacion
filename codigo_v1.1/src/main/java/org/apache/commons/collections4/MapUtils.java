@@ -35,6 +35,9 @@ import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import javax.xml.crypto.dsig.keyinfo.KeyValue;
+import javax.xml.transform.Transformer;
+
 import org.apache.commons.collections4.map.AbstractMapDecorator;
 import org.apache.commons.collections4.map.AbstractSortedMapDecorator;
 import org.apache.commons.collections4.map.FixedSizeMap;
@@ -223,21 +226,32 @@ public class MapUtils {
      * @param key the key to look up
      * @return the value in the Map as a Boolean, {@code null} if null map input
      */
-    public static <K> Boolean getBoolean(final Map<? super K, ?> map, final K key) {
-        if (map != null) {
-            final Object answer = map.get(key);
-            if (answer != null) {
-                if (answer instanceof Boolean) {
-                    return (Boolean) answer;
-                }
-                if (answer instanceof String) {
-                    return Boolean.valueOf((String) answer);
-                }
-                if (answer instanceof Number) {
-                    final Number n = (Number) answer;
-                    return n.intValue() != 0 ? Boolean.TRUE : Boolean.FALSE;
-                }
-            }
+   public static <K> Boolean getBoolean(final Map<? super K, ?> map, final K key) {
+    // Uso de cláusulas de guarda para simplificar la lógica
+    if (map == null) return null;
+    
+    final Object answer = map.get(key);
+    if (answer == null) return null;
+
+    // Refactorización: Extract Function para reducir complejidad cognitiva
+    return convertToBoolean(answer);
+    }
+
+    /**
+     * Método extraído para manejar la conversión de tipos específicos.
+     * Enfocado en realizar una sola cosa de forma sencilla.
+     */
+    private static Boolean convertToBoolean(final Object answer) {
+        if (answer instanceof Boolean) {
+            return (Boolean) answer;
+        }
+        if (answer instanceof String) {
+            return Boolean.valueOf((String) answer);
+        }
+        if (answer instanceof Number) {
+            final Number n = (Number) answer;
+            // Uso de LaTeX para claridad en la expresión lógica: $n.intValue() \neq 0$
+            return n.intValue() != 0 ? Boolean.TRUE : Boolean.FALSE;
         }
         return null;
     }

@@ -79,30 +79,20 @@ public class BoundedIterator<E> implements Iterator<E> {
         pos = 0;
         init();
     }
-
+    // CORREGIDO POR: MARTIN
     /**
      * Checks whether the iterator is still within its bounded range.
      *
      * @return {@code true} if the iterator is within its bounds, {@code false} otherwise
      */
     private boolean checkBounds() {
-        if (pos - offset + 1 > max) {
-            return false;
-        }
-        return true;
+        return pos >= offset && pos < offset + max;
     }
-
     @Override
     public boolean hasNext() {
-        if (!checkBounds()) {
-            return false;
-        }
-        return iterator.hasNext();
+        return checkBounds() && iterator.hasNext();
     }
 
-    /**
-     * Advances the underlying iterator to the beginning of the bounded range.
-     */
     private void init() {
         while (pos < offset && iterator.hasNext()) {
             iterator.next();

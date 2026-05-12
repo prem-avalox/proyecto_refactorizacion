@@ -223,25 +223,37 @@ public class MapUtils {
      * @param key the key to look up
      * @return the value in the Map as a Boolean, {@code null} if null map input
      */
+
+
+
+
     public static <K> Boolean getBoolean(final Map<? super K, ?> map, final K key) {
-        if (map != null) {
-            final Object answer = map.get(key);
-            if (answer != null) {
-                if (answer instanceof Boolean) {
-                    return (Boolean) answer;
-                }
-                if (answer instanceof String) {
-                    return Boolean.valueOf((String) answer);
-                }
-                if (answer instanceof Number) {
-                    final Number n = (Number) answer;
-                    return n.intValue() != 0 ? Boolean.TRUE : Boolean.FALSE;
-                }
-            }
+        if (map == null) {
+            return null;
+        }
+
+        final Object answer = map.get(key);
+        if (answer == null) {
+            return null;
+        }
+
+
+        return convertToBoolean(answer);
+    }
+
+    private static Boolean convertToBoolean(Object value) {
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        if (value instanceof String) {
+            return Boolean.valueOf((String) value);
+        }
+        if (value instanceof Number) {
+            return ((Number) value).intValue() != 0 ? Boolean.TRUE : Boolean.FALSE;
         }
         return null;
     }
-
+    
     /**
      * Looks up the given key in the given map, converting the result into a boolean, using the default value if the
      * conversion fails.

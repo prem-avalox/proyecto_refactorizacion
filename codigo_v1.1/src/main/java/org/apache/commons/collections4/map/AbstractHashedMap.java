@@ -804,29 +804,29 @@ public class AbstractHashedMap<K, V> extends AbstractMap<K, V> implements Iterab
      * @return true if the map contains the value
      */
     @Override
-    public boolean containsValue(final Object value) {
-        if (value == null) {
-            for (final HashEntry<K, V> element : data) {
-                HashEntry<K, V> entry = element;
-                while (entry != null) {
-                    if (entry.getValue() == null) {
-                        return true;
-                    }
-                    entry = entry.next;
+    public boolean containsValue(Object value) {
+        for (HashEntry<K, V> entry : data) {
+            // Navegamos por la lista enlazada del bucket
+            while (entry != null) {
+                if (matches(value, entry.getValue())) {
+                    return true;
                 }
-            }
-        } else {
-            for (final HashEntry<K, V> element : data) {
-                HashEntry<K, V> entry = element;
-                while (entry != null) {
-                    if (isEqualValue(value, entry.getValue())) {
-                        return true;
-                    }
-                    entry = entry.next;
-                }
+                entry = entry.next;
             }
         }
         return false;
+    }
+
+    /**
+     * Encapsula el comportamiento de comparación.
+     * Resuelve el "Primitive Obsession" al no dejar que el flujo principal
+     * se preocupe por la lógica interna de igualdad de valores.
+     */
+    private boolean matches(Object searchNode, Object entryValue) {
+        if (searchNode == null) {
+            return entryValue == null;
+        }
+        return isEqualValue(searchNode, entryValue);
     }
 
     /**

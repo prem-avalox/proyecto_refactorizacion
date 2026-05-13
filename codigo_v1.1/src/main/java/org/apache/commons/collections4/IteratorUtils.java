@@ -113,6 +113,15 @@ public class IteratorUtils {
     @SuppressWarnings("rawtypes")
     public static final OrderedMapIterator EMPTY_ORDERED_MAP_ITERATOR = EmptyOrderedMapIterator.INSTANCE;
 
+    // --- CONSTANTES PARA EVITAR DUPLICACIÓN DE LITERALES ---
+    private static final String ITERATOR_PARAM = "iterator";
+    private static final String PREDICATE_PARAM = "predicate";
+    private static final String ENUMERATION_PARAM = "enumeration";
+    private static final String LIST_ITERATOR_PARAM = "listIterator";
+    private static final String REMOVE_COLLECTION_PARAM = "removeCollection";
+    private static final String TRANSFORMER_PARAM = "transformer";
+    private static final String ARRAY_CLASS_PARAM = "arrayClass";
+
     /**
      * Default delimiter used to delimit elements while converting an Iterator
      * to its String representation.
@@ -120,7 +129,7 @@ public class IteratorUtils {
     private static final String DEFAULT_TOSTRING_DELIMITER = ", ";
 
     private static <E, C extends Collection<E>> C addAll(final Iterator<? extends E> iterator, final C list) {
-        Objects.requireNonNull(iterator, "iterator");
+        Objects.requireNonNull(iterator, ITERATOR_PARAM);
         while (iterator.hasNext()) {
             list.add(iterator.next());
         }
@@ -334,7 +343,7 @@ public class IteratorUtils {
      * @throws NullPointerException if iterator is null
      */
     public static <E> Enumeration<E> asEnumeration(final Iterator<? extends E> iterator) {
-        return new IteratorEnumeration<>(Objects.requireNonNull(iterator, "iterator"));
+        return new IteratorEnumeration<>(Objects.requireNonNull(iterator, ITERATOR_PARAM));
     }
 
     /**
@@ -347,7 +356,7 @@ public class IteratorUtils {
      * @throws NullPointerException if iterator is null
      */
     public static <E> Iterable<E> asIterable(final Iterator<? extends E> iterator) {
-        Objects.requireNonNull(iterator, "iterator");
+        Objects.requireNonNull(iterator, ITERATOR_PARAM);
         return new IteratorIterable<>(iterator, false);
     }
 
@@ -360,7 +369,7 @@ public class IteratorUtils {
      * @throws NullPointerException if enumeration is null
      */
     public static <E> Iterator<E> asIterator(final Enumeration<? extends E> enumeration) {
-        return new EnumerationIterator<>(Objects.requireNonNull(enumeration, "enumeration"));
+        return new EnumerationIterator<>(Objects.requireNonNull(enumeration, ENUMERATION_PARAM));
     }
 
     /**
@@ -375,8 +384,8 @@ public class IteratorUtils {
      */
     public static <E> Iterator<E> asIterator(final Enumeration<? extends E> enumeration,
                                              final Collection<? super E> removeCollection) {
-        return new EnumerationIterator<>(Objects.requireNonNull(enumeration, "enumeration"),
-                Objects.requireNonNull(removeCollection, "removeCollection"));
+        return new EnumerationIterator<>(Objects.requireNonNull(enumeration, ENUMERATION_PARAM),
+                Objects.requireNonNull(removeCollection, REMOVE_COLLECTION_PARAM));
     }
 
     /**
@@ -389,7 +398,7 @@ public class IteratorUtils {
      * @throws NullPointerException if iterator is null
      */
     public static <E> Iterable<E> asMultipleUseIterable(final Iterator<? extends E> iterator) {
-        Objects.requireNonNull(iterator, "iterator");
+        Objects.requireNonNull(iterator, ITERATOR_PARAM);
         return new IteratorIterable<>(iterator, true);
     }
 
@@ -680,8 +689,8 @@ public class IteratorUtils {
      */
     public static <E> Iterator<E> filteredIterator(final Iterator<? extends E> iterator,
                                                    final Predicate<? super E> predicate) {
-        Objects.requireNonNull(iterator, "iterator");
-        Objects.requireNonNull(predicate, "predicate");
+        Objects.requireNonNull(iterator, ITERATOR_PARAM);
+        Objects.requireNonNull(predicate, PREDICATE_PARAM);
         return new FilterIterator<>(iterator, predicate);
     }
 
@@ -701,8 +710,8 @@ public class IteratorUtils {
     public static <E> ListIterator<E> filteredListIterator(final ListIterator<? extends E> listIterator,
             final Predicate<? super E> predicate) {
 
-        Objects.requireNonNull(listIterator, "listIterator");
-        Objects.requireNonNull(predicate, "predicate");
+        Objects.requireNonNull(listIterator, LIST_ITERATOR_PARAM);
+        Objects.requireNonNull(predicate, PREDICATE_PARAM);
         return new FilterListIterator<>(listIterator, predicate);
     }
 
@@ -737,7 +746,7 @@ public class IteratorUtils {
      * @throws NullPointerException if predicate is null.
      */
     private static <E> E find(final Iterator<E> iterator, final Predicate<? super E> predicate, final E defaultValue) {
-        Objects.requireNonNull(predicate, "predicate");
+        Objects.requireNonNull(predicate, PREDICATE_PARAM);
         if (iterator != null) {
             while (iterator.hasNext()) {
                 final E element = iterator.next();
@@ -943,7 +952,7 @@ public class IteratorUtils {
      * @since 4.1
      */
     public static <E> int indexOf(final Iterator<E> iterator, final Predicate<? super E> predicate) {
-        Objects.requireNonNull(predicate, "predicate");
+        Objects.requireNonNull(predicate, PREDICATE_PARAM);
 
         if (iterator != null) {
             for (int index = 0; iterator.hasNext(); index++) {
@@ -1019,7 +1028,7 @@ public class IteratorUtils {
      * @since 4.1
      */
     public static <E> boolean matchesAll(final Iterator<E> iterator, final Predicate<? super E> predicate) {
-        Objects.requireNonNull(predicate, "predicate");
+        Objects.requireNonNull(predicate, PREDICATE_PARAM);
 
         if (iterator != null) {
             while (iterator.hasNext()) {
@@ -1277,7 +1286,7 @@ public class IteratorUtils {
      * @throws NullPointerException if iterator parameter is null
      */
     public static Object[] toArray(final Iterator<?> iterator) {
-        Objects.requireNonNull(iterator, "iterator");
+        Objects.requireNonNull(iterator, ITERATOR_PARAM);
         final List<?> list = toList(iterator, 100);
         return list.toArray();
     }
@@ -1297,8 +1306,8 @@ public class IteratorUtils {
      * @throws ArrayStoreException if the arrayClass is invalid
      */
     public static <E> E[] toArray(final Iterator<? extends E> iterator, final Class<E> arrayClass) {
-        Objects.requireNonNull(iterator, "iterator");
-        Objects.requireNonNull(arrayClass, "arrayClass");
+        Objects.requireNonNull(iterator, ITERATOR_PARAM);
+        Objects.requireNonNull(arrayClass, ARRAY_CLASS_PARAM);
         final List<E> list = toList(iterator, 100);
         @SuppressWarnings("unchecked")
         final E[] array = (E[]) Array.newInstance(arrayClass, list.size());
@@ -1355,7 +1364,7 @@ public class IteratorUtils {
      * @throws NullPointerException if iterator parameter is null
      */
     public static <E> ListIterator<E> toListIterator(final Iterator<? extends E> iterator) {
-        Objects.requireNonNull(iterator, "iterator");
+        Objects.requireNonNull(iterator, ITERATOR_PARAM);
         return new ListIteratorWrapper<>(iterator);
     }
 
@@ -1464,7 +1473,7 @@ public class IteratorUtils {
                                       final String delimiter,
                                       final String prefix,
                                       final String suffix) {
-        Objects.requireNonNull(transformer, "transformer");
+        Objects.requireNonNull(transformer, TRANSFORMER_PARAM);
         Objects.requireNonNull(delimiter, "delimiter");
         Objects.requireNonNull(prefix, "prefix");
         Objects.requireNonNull(suffix, "suffix");
@@ -1500,8 +1509,8 @@ public class IteratorUtils {
     public static <I, O> Iterator<O> transformedIterator(final Iterator<? extends I> iterator,
             final Transformer<? super I, ? extends O> transformer) {
 
-        Objects.requireNonNull(iterator, "iterator");
-        Objects.requireNonNull(transformer, "transformer");
+        Objects.requireNonNull(iterator, ITERATOR_PARAM);
+        Objects.requireNonNull(transformer, TRANSFORMER_PARAM);
         return new TransformIterator<>(iterator, transformer);
     }
 

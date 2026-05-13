@@ -1211,54 +1211,92 @@ public class TreeBidiMap<K extends Comparable<K>, V extends Comparable<V>>
     }
 
     /**
-     * Complicated red-black delete stuff. Based on Sun's TreeMap
-     * implementation, though it's barely recognizable anymore.
+     * Realiza la eliminación de un nodo en un árbol Red-Black.
+     * Basado originalmente en la implementación de TreeMap de Sun,
+     * pero descompuesto para reducir la complejidad cognitiva.
      *
-     * @param deletedNode the node to be deleted
+     * @param deletedNode El nodo que será eliminado del árbol.
      */
     private void doRedBlackDelete(final Node<K, V> deletedNode) {
         for (final DataElement dataElement : DataElement.values()) {
-            // if deleted node has both left and children, swap with
-            // the next greater node
-            if (deletedNode.getLeft(dataElement) != null && deletedNode.getRight(dataElement) != null) {
-                swapPosition(nextGreater(deletedNode, dataElement), deletedNode, dataElement);
-            }
-            final Node<K, V> replacement = deletedNode.getLeft(dataElement) != null ? deletedNode.getLeft(dataElement) : deletedNode.getRight(dataElement);
-            if (replacement != null) {
-                replacement.setParent(deletedNode.getParent(dataElement), dataElement);
-                if (deletedNode.getParent(dataElement) == null) {
-                    rootNode[dataElement.ordinal()] = replacement;
-                } else if (deletedNode == deletedNode.getParent(dataElement).getLeft(dataElement)) {
-                    deletedNode.getParent(dataElement).setLeft(replacement, dataElement);
-                } else {
-                    deletedNode.getParent(dataElement).setRight(replacement, dataElement);
-                }
-                deletedNode.setLeft(null, dataElement);
-                deletedNode.setRight(null, dataElement);
-                deletedNode.setParent(null, dataElement);
-                if (isBlack(deletedNode, dataElement)) {
-                    doRedBlackDeleteFixup(replacement, dataElement);
-                }
-            } else if (deletedNode.getParent(dataElement) == null) {
-                // replacement is null
-                // empty tree
-                rootNode[dataElement.ordinal()] = null;
-            } else {
-                // deleted node had no children
-                if (isBlack(deletedNode, dataElement)) {
-                    doRedBlackDeleteFixup(deletedNode, dataElement);
-                }
-                if (deletedNode.getParent(dataElement) != null) {
-                    if (deletedNode == deletedNode.getParent(dataElement).getLeft(dataElement)) {
-                        deletedNode.getParent(dataElement).setLeft(null, dataElement);
-                    } else {
-                        deletedNode.getParent(dataElement).setRight(null, dataElement);
-                    }
-                    deletedNode.setParent(null, dataElement);
-                }
-            }
+            processNodeDeletion(deletedNode, dataElement);
         }
-        shrink();
+    }
+
+    /**
+     * Orquestador de la fase de eliminación para un elemento de datos específico.
+     * Divide la lógica en: búsqueda de sustituto, reconexión de punteros y balanceo.
+     */
+    private void processNodeDeletion(Node<K, V> node, DataElement data) {
+        // Fase 1: Si el nodo tiene dos hijos, se intercambia con su sucesor
+        // (el nodo más pequeño a su derecha) para simplificar la eliminación física.
+        if (node.getLeft(data) != null && node.getRight(data) != null) {
+            swapPosition(nextGreater(node, data), node, data);
+        }
+
+        // Fase 2: Identificar el nodo que ocupará el lugar del eliminado (si existe).
+        Node<K, V> replacement = (node.getLeft(data) != null) ? node.getLeft(data) : node.getRight(data);
+
+        if (replacement != null) {
+            // Caso: El nodo tiene al menos un hijo.
+            handleReplacementWithChildren(node, replacement, data);
+        } else if (node.getParent(data) == null) {
+            // Caso: El nodo es la raíz y no tiene hijos (el árbol queda vacío).
+            rootNode[data.ordinal()] = null;
+        } else {
+            // Caso: El nodo es una hoja (no tiene hijos).
+            handleLeafDeletion(node, data);
+        }
+    }
+
+    /**
+     * Maneja la eliminación cuando existe un nodo hijo que puede tomar el lugar del nodo borrado.
+     * Realiza el "bypass" de punteros y dispara el fixup si se eliminó un nodo negro.
+     */
+    private void handleReplacementWithChildren(Node<K, V> node, Node<K, V> replacement, DataElement data) {
+        replacement.setParent(node.getParent(data), data);
+        updateParentReferences(node, replacement, data);
+
+        // Limpieza de referencias del nodo eliminado
+        node.setLeft(null, data);
+        node.setRight(null, data);
+        node.setParent(null, data);
+
+        // Si el nodo eliminado era negro, se rompe la propiedad de "Black Height",
+        // por lo que se requiere rebalancear el árbol.
+        if (isBlack(node, data)) {
+            doRedBlackDeleteFixup(replacement, data);
+        }
+    }
+
+    /**
+     * Maneja la eliminación de nodos hoja.
+     * A diferencia del caso con hijos, el fixup debe ejecutarse ANTES de quitar el nodo
+     * si este es negro, para usar su posición como referencia en las rotaciones.
+     */
+    private void handleLeafDeletion(Node<K, V> node, DataElement data) {
+        if (isBlack(node, data)) {
+            doRedBlackDeleteFixup(node, data);
+        }
+
+        updateParentReferences(node, null, data);
+        node.setParent(null, data);
+    }
+
+    /**
+     * Utilidad para actualizar los punteros del padre del nodo que está siendo movido o eliminado.
+     * Centraliza la lógica de decidir si el nodo es hijo izquierdo, derecho o la raíz.
+     */
+    private void updateParentReferences(Node<K, V> oldNode, Node<K, V> newNode, DataElement data) {
+        Node<K, V> parent = oldNode.getParent(data);
+
+        if (parent == null) {
+            rootNode[data.ordinal()] = newNode;
+        } else if (oldNode == parent.getLeft(data)) {
+            parent.setLeft(newNode, data);
+        } else {
+            parent.setRight(newNode, data);
+        }
     }
 
     /**

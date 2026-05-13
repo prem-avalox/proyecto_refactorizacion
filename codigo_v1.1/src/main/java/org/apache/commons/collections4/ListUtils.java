@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
+import javax.xml.transform.Transformer;
+
 import org.apache.commons.collections4.bag.HashBag;
 import org.apache.commons.collections4.functors.DefaultEquator;
 import org.apache.commons.collections4.list.FixedSizeList;
@@ -61,6 +63,23 @@ public class ListUtils {
         @Override
         public int size() {
             return sequence.length();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            // 1. Verificación de referencia (si son el mismo objeto)
+            if (this == o) return true;
+            // 2. Verificación de tipo (si el otro objeto es de la misma clase)
+            if (!(o instanceof CharSequenceAsList)) return false;
+            // 3. Comparación lógica del contenido (la secuencia)
+            CharSequenceAsList other = (CharSequenceAsList) o;
+            return this.sequence.equals(other.sequence);
+        }
+
+        @Override
+        public int hashCode() {
+            // Genera un hash basado en el contenido de la secuencia
+            return sequence.hashCode();
         }
     }
 

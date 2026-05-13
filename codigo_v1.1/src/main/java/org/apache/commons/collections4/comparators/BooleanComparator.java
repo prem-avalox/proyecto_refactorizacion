@@ -137,7 +137,16 @@ public final class BooleanComparator implements Comparator<Boolean>, Serializabl
         final boolean v1 = b1.booleanValue();
         final boolean v2 = b2.booleanValue();
 
-        return v1 ^ v2 ? v1 ^ trueFirst ? 1 : -1 : 0;
+        // Refactorización: Decompose Conditional para eliminar lógica anidada
+        if (v1 == v2) {
+            return 0;
+        }
+
+        if (v1 ^ trueFirst) {
+            return 1;
+        } else {
+            return -1;
+        }
     }
 
     /**
